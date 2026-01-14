@@ -23,10 +23,7 @@ echo -e "${BLUE}📦 Updating system packages...${NC}"
 apt-get update
 apt-get upgrade -y
 
-# Step 2: Install Python and dependencies
-echo -e "${BLUE}🐍 Installing Python $PYTHON_VERSION...${NC}"
-apt-get install -y python$PYTHON_VERSION python$PYTHON_VERSION-venv python$PYTHON_VERSION-dev
-apt-get install -y python3-pip nginx supervisor
+
 
 # Step 3: Create virtual environment
 echo -e "${BLUE}🔧 Creating virtual environment...${NC}"

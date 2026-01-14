@@ -1,0 +1,337 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-01-12T03:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.0",
+  "resources": [
+    {
+      "_id": "req_info",
+      "parentId": "fld_info",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/",
+      "name": "Get App Info",
+      "description": "Mendapatkan informasi aplikasi",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_health",
+      "parentId": "fld_info",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/health",
+      "name": "Health Check",
+      "description": "Cek kesehatan semua node",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_nodes",
+      "parentId": "fld_info",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/nodes",
+      "name": "Get All Nodes",
+      "description": "Status semua node",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_metrics",
+      "parentId": "fld_info",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/metrics",
+      "name": "Get Metrics",
+      "description": "Metrics sistem",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_write_100",
+      "parentId": "fld_write",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/write",
+      "name": "Write Value 100",
+      "description": "Write nilai 100",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"value\": 100\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_write_250",
+      "parentId": "fld_write",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/write",
+      "name": "Write Value 250",
+      "description": "Write nilai 250",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"value\": 250\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_write_500",
+      "parentId": "fld_write",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/write",
+      "name": "Write Value 500",
+      "description": "Write nilai 500",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"value\": 500\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_read_node1",
+      "parentId": "fld_read",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/read/node1",
+      "name": "Read from Node1",
+      "description": "Simple read dari node1",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_read_node2",
+      "parentId": "fld_read",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/read/node2",
+      "name": "Read from Node2",
+      "description": "Simple read dari node2",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_read_node3",
+      "parentId": "fld_read",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/read/node3",
+      "name": "Read from Node3",
+      "description": "Simple read dari node3",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_quorum_read",
+      "parentId": "fld_read",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/read/node1",
+      "name": "Quorum Read",
+      "description": "Quorum read dengan read repair",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "quorum",
+          "value": "true"
+        }
+      ],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_toggle_node1",
+      "parentId": "fld_node_mgmt",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/node/node1/status",
+      "name": "Toggle Node1 Status",
+      "description": "Toggle status node1",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_toggle_node2",
+      "parentId": "fld_node_mgmt",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/node/node2/status",
+      "name": "Toggle Node2 Status",
+      "description": "Toggle status node2",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_toggle_node3",
+      "parentId": "fld_node_mgmt",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/node/node3/status",
+      "name": "Toggle Node3 Status",
+      "description": "Toggle status node3",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_reset",
+      "parentId": "fld_system",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "url": "{{ _.base_url }}/reset",
+      "name": "Reset All Nodes",
+      "description": "Reset semua node dan metrics",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "_type": "request"
+    },
+    {
+      "_id": "fld_info",
+      "parentId": "wrk_main",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "1. Info & Health",
+      "description": "",
+      "environment": {},
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_write",
+      "parentId": "wrk_main",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "2. Write Operations",
+      "description": "",
+      "environment": {},
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_read",
+      "parentId": "wrk_main",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "3. Read Operations",
+      "description": "",
+      "environment": {},
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_node_mgmt",
+      "parentId": "wrk_main",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "4. Node Management",
+      "description": "",
+      "environment": {},
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_system",
+      "parentId": "wrk_main",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "5. System Operations",
+      "description": "",
+      "environment": {},
+      "_type": "request_group"
+    },
+    {
+      "_id": "wrk_main",
+      "parentId": null,
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "Distributed Flask App",
+      "description": "API Testing untuk Distributed Flask App",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_main",
+      "parentId": "wrk_main",
+      "modified": 1705024800000,
+      "created": 1705024800000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:5001"
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "_type": "environment"
+    }
+  ]
+}

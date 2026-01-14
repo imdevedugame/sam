@@ -1,0 +1,796 @@
+{
+  "info": {
+    "name": "Distributed Flask App - API Testing",
+    "_postman_id": "distributed-flask-app-2026",
+    "description": "Collection untuk testing Distributed Flask App dengan berbagai consistency modes.\n\n📌 CONSISTENCY MODES:\n\n1️⃣ STRONG CONSISTENCY (Default)\n- Write ke QUORUM (2/3 nodes)\n- Semua node PASTI konsisten\n- Lebih lambat tapi data akurat\n- Set: CONSISTENCY_MODE=strong\n\n2️⃣ WEAK CONSISTENCY\n- Write HANYA ke primary node (node1)\n- Node lain TIDAK diupdate\n- Super cepat tapi bisa inconsistent\n- Set: CONSISTENCY_MODE=weak\n\n3️⃣ EVENTUAL CONSISTENCY\n- Write ke primary dulu (fast response)\n- Replikasi async (delay 3 detik)\n- Eventually semua node sama\n- Set: CONSISTENCY_MODE=eventual\n\n🔧 CARA GANTI MODE:\nSebelum run app, set environment variable:\nexport CONSISTENCY_MODE=strong\nexport REPLICATION_DELAY=3\nexport QUORUM_SIZE=2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Info & Health",
+      "item": [
+        {
+          "name": "Get App Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "📋 Mendapatkan informasi aplikasi dan daftar endpoint\n\n✅ Response akan menampilkan:\n- Nama aplikasi\n- Consistency mode yang aktif (strong/weak/eventual)\n- Config (quorum_size, replication_delay)\n- Semua endpoint yang tersedia\n\n💡 Gunakan ini untuk cek mode consistency yang sedang aktif!"
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Cek status kesehatan semua node"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Nodes Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/nodes",
+              "host": ["{{base_url}}"],
+              "path": ["nodes"]
+            },
+            "description": "Mendapatkan status detail semua node"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["metrics"]
+            },
+            "description": "Mendapatkan metrics sistem (writes, reads, latency, dll)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Write Operations",
+      "item": [
+        {
+          "name": "Write Value 100",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "✍️ Write nilai 100 ke distributed system\n\n📊 BEHAVIOR BERDASARKAN MODE:\n\n🔵 STRONG CONSISTENCY:\n- Write ke 2 dari 3 nodes (quorum)\n- Response setelah semua write sukses\n- Latency: ~10-20ms\n- Semua node langsung konsisten\n\n🟡 WEAK CONSISTENCY:\n- Write HANYA ke node1\n- Response instant\n- Latency: ~5ms\n- Node2 & node3 TIDAK diupdate!\n\n🟢 EVENTUAL CONSISTENCY:\n- Write ke node1 dulu (instant)\n- Background replikasi (3 detik)\n- Latency: ~5ms\n- Node2 & node3 update belakangan\n\n✅ Check response field 'mode' untuk lihat mode aktif!"
+          },
+          "response": []
+        },
+        {
+          "name": "Write Value 250",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 250\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "Write nilai 250"
+          },
+          "response": []
+        },
+        {
+          "name": "Write Value 500",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "Write nilai 500"
+          },
+          "response": []
+        },
+        {
+          "name": "Write Custom Value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": {{custom_value}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "Write nilai custom (gunakan variable)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Read Operations",
+      "item": [
+        {
+          "name": "Read from Node1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node1",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node1"]
+            },
+            "description": "📖 Simple read dari node1 (tanpa read repair)\n\n⚡ Fast read - langsung return value dari node1\n❌ Tidak ada consistency check\n❌ Tidak ada read repair\n\n💡 Gunakan untuk:\n- Quick read saat butuh speed\n- Tidak peduli dengan slight inconsistency\n\n⚠️ PERHATIAN:\n- Di WEAK mode: node1 always up-to-date\n- Di EVENTUAL mode: bisa outdated jika baru saja write (tunggu 3 detik)\n- Di STRONG mode: selalu konsisten\n\n🔍 Response fields:\n- value: nilai yang disimpan\n- vector_clock: version tracking\n- timestamp: kapan terakhir diupdate\n- status: healthy/unhealthy"
+          },
+          "response": []
+        },
+        {
+          "name": "Read from Node2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node2",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node2"]
+            },
+            "description": "Simple read dari node2"
+          },
+          "response": []
+        },
+        {
+          "name": "Read from Node3",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node3",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node3"]
+            },
+            "description": "Simple read dari node3"
+          },
+          "response": []
+        },
+        {
+          "name": "Quorum Read from Node1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node1?quorum=true",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node1"],
+              "query": [
+                {
+                  "key": "quorum",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "🔍 Quorum read dengan READ REPAIR mechanism\n\n✅ CARA KERJA:\n1. Baca dari 2 nodes (quorum)\n2. Bandingkan values\n3. Jika BEDA → pilih yang terbaru (Last-Write-Wins)\n4. Update node yang ketinggalan (READ REPAIR)\n5. Return value\n\n💡 KAPAN PAKAI:\n- Butuh consistency guarantee\n- Suspect ada inconsistency\n- Setelah node failure recovery\n- Di EVENTUAL/WEAK mode untuk verify\n\n⚙️ READ REPAIR:\n- Otomatis fix inconsistency\n- Update stale nodes\n- Tracked di metrics.read_repairs\n\n⚡ Trade-off:\n- Lebih lambat dari simple read (~2x latency)\n- Tapi lebih reliable & self-healing\n\n📊 Check metrics setelah quorum read:\ncurl {{base_url}}/metrics\nLihat field 'read_repairs' untuk count"
+          },
+          "response": []
+        },
+        {
+          "name": "Quorum Read from Node2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node2?quorum=true",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node2"],
+              "query": [
+                {
+                  "key": "quorum",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Quorum read dari node2"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Node Management",
+      "item": [
+        {
+          "name": "Toggle Node1 Status",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/node/node1/status",
+              "host": ["{{base_url}}"],
+              "path": ["node", "node1", "status"]
+            },
+            "description": "Toggle status node1 (healthy/unhealthy)"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Node2 Status",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/node/node2/status",
+              "host": ["{{base_url}}"],
+              "path": ["node", "node2", "status"]
+            },
+            "description": "🔄 Toggle status node2 (healthy ↔️ unhealthy)\n\n💡 SIMULASI NODE FAILURE:\n- Call pertama: matikan node2 (unhealthy)\n- Call kedua: hidupkan lagi (healthy)\n\n🧪 TEST SCENARIOS:\n\n1️⃣ Test Fault Tolerance:\n   - Matikan 1 node\n   - Write masih sukses? (quorum = 2/3)\n   - Check health status\n\n2️⃣ Test Quorum:\n   - Matikan 2 nodes\n   - Write akan GAGAL (quorum tidak tercapai)\n\n3️⃣ Test Recovery:\n   - Matikan node → write\n   - Hidupkan lagi\n   - Verify data consistency\n\n⚠️ IMPACT PER MODE:\n\n🔵 STRONG: Masih bisa write selama 2 nodes healthy\n🟡 WEAK: Gagal jika node1 (primary) down\n🟢 EVENTUAL: Replikasi skip node yang down\n\n✅ Response:\n- previous_status: status sebelumnya\n- new_status: status baru\n\n🔍 Cek dampaknya:\nGET /health → lihat quorum_met\nGET /nodes → lihat status semua node"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Node3 Status",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/node/node3/status",
+              "host": ["{{base_url}}"],
+              "path": ["node", "node3", "status"]
+            },
+            "description": "Toggle status node3 (healthy/unhealthy)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. System Operations",
+      "item": [
+        {
+          "name": "Reset All Nodes",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reset",
+              "host": ["{{base_url}}"],
+              "path": ["reset"]
+            },
+            "description": "Reset semua node dan metrics ke state awal"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Test STRONG Consistency",
+      "description": "🔵 Test mode STRONG CONSISTENCY\n\nCara pakai:\n1. Restart app dengan: export CONSISTENCY_MODE=strong\n2. Run semua request di folder ini berurutan\n3. Verify semua node konsisten",
+      "item": [
+        {
+          "name": "1. Reset System",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reset",
+              "host": ["{{base_url}}"],
+              "path": ["reset"]
+            },
+            "description": "Reset ke initial state"
+          }
+        },
+        {
+          "name": "2. Check Mode = Strong",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Verify consistency_mode = 'strong'"
+          }
+        },
+        {
+          "name": "3. Write Value 100",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "Expected: Write ke 2/3 nodes (quorum)"
+          }
+        },
+        {
+          "name": "4. Verify Node1 = 100",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node1",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node1"]
+            },
+            "description": "Expected: value = 100"
+          }
+        },
+        {
+          "name": "5. Verify Node2 = 100",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node2",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node2"]
+            },
+            "description": "Expected: value = 100 (KONSISTEN!)"
+          }
+        },
+        {
+          "name": "6. Verify Node3 = 100",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node3",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node3"]
+            },
+            "description": "Expected: value = 100 (KONSISTEN!)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Test WEAK Consistency",
+      "description": "🟡 Test mode WEAK CONSISTENCY\n\nCara pakai:\n1. Restart app dengan: export CONSISTENCY_MODE=weak\n2. Run semua request di folder ini\n3. Lihat HANYA node1 yang terupdate!",
+      "item": [
+        {
+          "name": "1. Reset System",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reset",
+              "host": ["{{base_url}}"],
+              "path": ["reset"]
+            }
+          }
+        },
+        {
+          "name": "2. Check Mode = Weak",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Verify consistency_mode = 'weak'"
+          }
+        },
+        {
+          "name": "3. Write Value 200",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "Expected: Write HANYA ke node1"
+          }
+        },
+        {
+          "name": "4. Read Node1 (Updated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node1",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node1"]
+            },
+            "description": "Expected: value = 200 ✅"
+          }
+        },
+        {
+          "name": "5. Read Node2 (NOT Updated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node2",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node2"]
+            },
+            "description": "Expected: value = 0 ❌ (TIDAK DIUPDATE!)"
+          }
+        },
+        {
+          "name": "6. Read Node3 (NOT Updated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node3",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node3"]
+            },
+            "description": "Expected: value = 0 ❌ (TIDAK DIUPDATE!)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Test EVENTUAL Consistency",
+      "description": "🟢 Test mode EVENTUAL CONSISTENCY\n\nCara pakai:\n1. Restart app dengan: export CONSISTENCY_MODE=eventual\n2. Run request 1-4 dengan cepat\n3. Tunggu 3 detik\n4. Run request 5-6 untuk verify replikasi",
+      "item": [
+        {
+          "name": "1. Reset System",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reset",
+              "host": ["{{base_url}}"],
+              "path": ["reset"]
+            }
+          }
+        },
+        {
+          "name": "2. Check Mode = Eventual",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Verify consistency_mode = 'eventual'"
+          }
+        },
+        {
+          "name": "3. Write Value 300",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 300\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/write",
+              "host": ["{{base_url}}"],
+              "path": ["write"]
+            },
+            "description": "Expected: Instant response, write ke node1 dulu"
+          }
+        },
+        {
+          "name": "4. IMMEDIATE Read Node2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node2",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node2"]
+            },
+            "description": "⚡ Run SEGERA setelah write!\nExpected: value = 0 (belum direplikasi)"
+          }
+        },
+        {
+          "name": "5. WAIT 3 seconds then Read Node2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node2",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node2"]
+            },
+            "description": "⏰ TUNGGU 3 DETIK dulu!\nExpected: value = 300 (sudah tereplikasi)"
+          }
+        },
+        {
+          "name": "6. Read Node3 (After Delay)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/read/node3",
+              "host": ["{{base_url}}"],
+              "path": ["read", "node3"]
+            },
+            "description": "Expected: value = 300 (sudah tereplikasi)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Test Scenarios",
+      "item": [
+        {
+          "name": "Scenario: Strong Consistency Test",
+          "item": [
+            {
+              "name": "1. Reset System",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/reset",
+                  "host": ["{{base_url}}"],
+                  "path": ["reset"]
+                }
+              }
+            },
+            {
+              "name": "2. Write Value",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": 100\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/write",
+                  "host": ["{{base_url}}"],
+                  "path": ["write"]
+                }
+              }
+            },
+            {
+              "name": "3. Verify Node1",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/read/node1",
+                  "host": ["{{base_url}}"],
+                  "path": ["read", "node1"]
+                }
+              }
+            },
+            {
+              "name": "4. Verify Node2",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/read/node2",
+                  "host": ["{{base_url}}"],
+                  "path": ["read", "node2"]
+                }
+              }
+            },
+            {
+              "name": "5. Verify Node3",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/read/node3",
+                  "host": ["{{base_url}}"],
+                  "path": ["read", "node3"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scenario: Node Failure Test",
+          "item": [
+            {
+              "name": "1. Reset System",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/reset",
+                  "host": ["{{base_url}}"],
+                  "path": ["reset"]
+                }
+              }
+            },
+            {
+              "name": "2. Write Initial Value",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": 200\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/write",
+                  "host": ["{{base_url}}"],
+                  "path": ["write"]
+                }
+              }
+            },
+            {
+              "name": "3. Disable Node2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/node/node2/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["node", "node2", "status"]
+                }
+              }
+            },
+            {
+              "name": "4. Check Health",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["health"]
+                }
+              }
+            },
+            {
+              "name": "5. Write with Node Down",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": 300\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/write",
+                  "host": ["{{base_url}}"],
+                  "path": ["write"]
+                }
+              }
+            },
+            {
+              "name": "6. Re-enable Node2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/node/node2/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["node", "node2", "status"]
+                }
+              }
+            },
+            {
+              "name": "7. Verify Final State",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/nodes",
+                  "host": ["{{base_url}}"],
+                  "path": ["nodes"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "custom_value",
+      "value": "999",
+      "type": "number"
+    }
+  ]
+}

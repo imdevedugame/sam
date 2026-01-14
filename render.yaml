@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: distributed-flask-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: CONSISTENCY_MODE
+        value: eventual
+      - key: REPLICATION_DELAY
+        value: 3
+      - key: QUORUM_SIZE
+        value: 2

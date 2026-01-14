@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed System Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .consistency-mode {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .node {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .node.healthy {
+            border-left-color: #10b981;
+        }
+
+        .node.unhealthy {
+            border-left-color: #ef4444;
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .node-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-badge.healthy {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.unhealthy {
+            background: #ef4444;
+            color: white;
+        }
+
+        .node-info {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .value-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.danger {
+            background: #ef4444;
+        }
+
+        button.danger:hover {
+            background: #dc2626;
+        }
+
+        button.success {
+            background: #10b981;
+        }
+
+        button.success:hover {
+            background: #059669;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background: #f7f7f7;
+            border-radius: 10px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: #f7f7f7;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-entry.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .log-entry.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .log-entry.info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .select-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .health-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #f7f7f7;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .health-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .health-dot.healthy {
+            background: #10b981;
+        }
+
+        .health-dot.degraded {
+            background: #f59e0b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Distributed System Dashboard</h1>
+            <p style="color: #666; margin: 10px 0;">
+                Real-time monitoring of distributed consistency models
+            </p>
+            <span class="consistency-mode" id="consistencyMode">Loading...</span>
+        </header>
+
+        <div class="grid">
+            <!-- Write Operations -->
+            <div class="card">
+                <h2>✍️ Write Operations</h2>
+                <div class="controls">
+                    <input type="number" id="writeValue" placeholder="Enter value to write" value="100">
+                    <button onclick="performWrite()">Write</button>
+                </div>
+                <div id="writeResult"></div>
+            </div>
+
+            <!-- Read Operations -->
+            <div class="card">
+                <h2>📖 Read Operations</h2>
+                <div class="controls">
+                    <div class="select-wrapper">
+                        <select id="readNode">
+                            <option value="node1">Node 1</option>
+                            <option value="node2">Node 2</option>
+                            <option value="node3">Node 3</option>
+                        </select>
+                    </div>
+                    <button onclick="performRead(false)">Read</button>
+                    <button onclick="performRead(true)" class="success">Quorum Read</button>
+                </div>
+                <div id="readResult"></div>
+            </div>
+
+            <!-- System Controls -->
+            <div class="card">
+                <h2>⚙️ System Controls</h2>
+                <div class="controls">
+                    <button onclick="resetSystem()" class="danger">Reset System</button>
+                    <button onclick="refreshAll()" class="success">Refresh All</button>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-dot" id="healthDot"></div>
+                    <div>
+                        <strong id="healthStatus">Checking...</strong><br>
+                        <small id="healthDetails"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nodes Status -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>🖥️ Nodes Status</h2>
+            <div id="nodesContainer" class="loading">Loading nodes...</div>
+        </div>
+
+        <div class="grid">
+            <!-- Metrics -->
+            <div class="card">
+                <h2>📊 Metrics</h2>
+                <div class="metrics-grid" id="metricsContainer">
+                    <div class="loading">Loading metrics...</div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="card">
+                <h2>📝 Activity Log</h2>
+                <div class="log-container" id="activityLog">
+                    <div class="log-entry info">
+                        <span class="timestamp">[System]</span> Dashboard initialized
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001';
+        let autoRefresh = true;
+
+        // Add log entry
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('activityLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 50 entries
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Fetch and update nodes
+        async function updateNodes() {
+            try {
+                const response = await fetch(`${API_BASE}/nodes`);
+                const data = await response.json();
+                
+                const container = document.getElementById('nodesContainer');
+                container.innerHTML = '';
+                
+                for (const [name, info] of Object.entries(data.nodes)) {
+                    const nodeDiv = document.createElement('div');
+                    nodeDiv.className = `node ${info.status}`;
+                    nodeDiv.innerHTML = `
+                        <div class="node-header">
+                            <span class="node-name">${name.toUpperCase()}</span>
+                            <span class="status-badge ${info.status}">${info.status}</span>
+                        </div>
+                        <div class="value-display">Value: ${info.value}</div>
+                        <div class="node-info">
+                            <div>Vector Clock: ${JSON.stringify(info.vector_clock)}</div>
+                            <div>Timestamp: ${new Date(info.timestamp).toLocaleString()}</div>
+                            <div>Last Heartbeat: ${info.last_heartbeat_sec_ago}s ago</div>
+                        </div>
+                        <button onclick="toggleNodeStatus('${name}')" style="margin-top: 10px; width: 100%;">
+                            Toggle Status
+                        </button>
+                    `;
+                    container.appendChild(nodeDiv);
+                }
+            } catch (error) {
+                addLog(`Failed to fetch nodes: ${error.message}`, 'error');
+            }
+        }
+
+        // Fetch and update metrics
+        async function updateMetrics() {
+            try {
+                const response = await fetch(`${API_BASE}/metrics`);
+                const data = await response.json();
+                
+                const container = document.getElementById('metricsContainer');
+                container.innerHTML = `
+                    <div class="metric">
+                        <div class="metric-value">${data.total_writes}</div>
+                        <div class="metric-label">Total Writes</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.total_reads}</div>
+                        <div class="metric-label">Total Reads</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.conflicts_resolved}</div>
+                        <div class="metric-label">Conflicts Resolved</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.read_repairs}</div>
+                        <div class="metric-label">Read Repairs</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.avg_write_latency_ms}ms</div>
+                        <div class="metric-label">Avg Write Latency</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.avg_read_latency_ms}ms</div>
+                        <div class="metric-label">Avg Read Latency</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.success_rate.writes}%</div>
+                        <div class="metric-label">Write Success Rate</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">${data.success_rate.reads}%</div>
+                        <div class="metric-label">Read Success Rate</div>
+                    </div>
+                `;
+            } catch (error) {
+                addLog(`Failed to fetch metrics: ${error.message}`, 'error');
+            }
+        }
+
+        // Update health status
+        async function updateHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                const dot = document.getElementById('healthDot');
+                const status = document.getElementById('healthStatus');
+                const details = document.getElementById('healthDetails');
+                
+                dot.className = `health-dot ${data.status}`;
+                status.textContent = `System ${data.status.toUpperCase()}`;
+                details.textContent = `${data.healthy_nodes}/${data.total_nodes} nodes healthy | Quorum: ${data.quorum_met ? 'Met' : 'Not Met'}`;
+            } catch (error) {
+                addLog(`Failed to fetch health: ${error.message}`, 'error');
+            }
+        }
+
+        // Update consistency mode
+        async function updateConsistencyMode() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+                document.getElementById('consistencyMode').textContent = data.consistency_mode;
+            } catch (error) {
+                addLog(`Failed to fetch config: ${error.message}`, 'error');
+            }
+        }
+
+        // Perform write
+        async function performWrite() {
+            const value = parseInt(document.getElementById('writeValue').value);
+            if (isNaN(value)) {
+                addLog('Please enter a valid number', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/write`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value })
+                });
+                
+                const data = await response.json();
+                const resultDiv = document.getElementById('writeResult');
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="log-entry success" style="margin-top: 10px;">
+                            ✅ Write successful!<br>
+                            Mode: ${data.mode}<br>
+                            Value: ${data.written_value}<br>
+                            Latency: ${data.latency_ms}ms
+                        </div>
+                    `;
+                    addLog(`Write successful: ${value} (${data.latency_ms}ms)`, 'success');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="log-entry error" style="margin-top: 10px;">
+                            ❌ Write failed: ${data.error}
+                        </div>
+                    `;
+                    addLog(`Write failed: ${data.error}`, 'error');
+                }
+                
+                // Refresh nodes after write
+                setTimeout(() => updateNodes(), 500);
+                setTimeout(() => updateMetrics(), 500);
+            } catch (error) {
+                addLog(`Write error: ${error.message}`, 'error');
+            }
+        }
+
+        // Perform read
+        async function performRead(useQuorum) {
+            const node = document.getElementById('readNode').value;
+            
+            try {
+                const url = `${API_BASE}/read/${node}${useQuorum ? '?quorum=true' : ''}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('readResult');
+                resultDiv.innerHTML = `
+                    <div class="log-entry success" style="margin-top: 10px;">
+                        📖 Read from ${data.node}<br>
+                        <strong style="font-size: 1.5em; color: #667eea;">Value: ${data.value}</strong><br>
+                        Type: ${data.read_type}<br>
+                        Latency: ${data.latency_ms}ms
+                        ${data.vector_clock ? `<br>Vector Clock: ${JSON.stringify(data.vector_clock)}` : ''}
+                    </div>
+                `;
+                addLog(`Read from ${node}: ${data.value} (${data.read_type}, ${data.latency_ms}ms)`, 'success');
+                
+                setTimeout(() => updateMetrics(), 500);
+            } catch (error) {
+                addLog(`Read error: ${error.message}`, 'error');
+            }
+        }
+
+        // Toggle node status
+        async function toggleNodeStatus(node) {
+            try {
+                const response = await fetch(`${API_BASE}/node/${node}/status`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                addLog(`${node} status: ${data.previous_status} → ${data.new_status}`, 'info');
+                updateNodes();
+                updateHealth();
+            } catch (error) {
+                addLog(`Failed to toggle ${node}: ${error.message}`, 'error');
+            }
+        }
+
+        // Reset system
+        async function resetSystem() {
+            if (!confirm('Are you sure you want to reset all nodes and metrics?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+                const data = await response.json();
+                addLog('System reset complete', 'success');
+                refreshAll();
+            } catch (error) {
+                addLog(`Reset failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Refresh all data
+        function refreshAll() {
+            updateNodes();
+            updateMetrics();
+            updateHealth();
+            addLog('Dashboard refreshed', 'info');
+        }
+
+        // Auto-refresh
+        setInterval(() => {
+            if (autoRefresh) {
+                updateNodes();
+                updateMetrics();
+                updateHealth();
+            }
+        }, 3000);
+
+        // Initial load
+        updateConsistencyMode();
+        refreshAll();
+    </script>
+</body>
+</html>

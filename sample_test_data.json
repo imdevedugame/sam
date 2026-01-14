@@ -1,0 +1,178 @@
+{
+  "test_scenarios": {
+    "basic_write_tests": [
+      {
+        "name": "Write small value",
+        "endpoint": "/write",
+        "method": "POST",
+        "body": {
+          "value": 10
+        },
+        "expected_status": 200
+      },
+      {
+        "name": "Write medium value",
+        "endpoint": "/write",
+        "method": "POST",
+        "body": {
+          "value": 500
+        },
+        "expected_status": 200
+      },
+      {
+        "name": "Write large value",
+        "endpoint": "/write",
+        "method": "POST",
+        "body": {
+          "value": 999999
+        },
+        "expected_status": 200
+      },
+      {
+        "name": "Write negative value",
+        "endpoint": "/write",
+        "method": "POST",
+        "body": {
+          "value": -100
+        },
+        "expected_status": 200
+      },
+      {
+        "name": "Write zero",
+        "endpoint": "/write",
+        "method": "POST",
+        "body": {
+          "value": 0
+        },
+        "expected_status": 200
+      }
+    ],
+    "error_cases": [
+      {
+        "name": "Write without value",
+        "endpoint": "/write",
+        "method": "POST",
+        "body": {},
+        "expected_status": 400,
+        "expected_error": "Missing 'value' in request"
+      },
+      {
+        "name": "Read from non-existent node",
+        "endpoint": "/read/node999",
+        "method": "GET",
+        "expected_status": 404,
+        "expected_error": "Node 'node999' not found"
+      }
+    ],
+    "consistency_tests": [
+      {
+        "scenario": "Strong Consistency",
+        "steps": [
+          {
+            "action": "reset",
+            "endpoint": "/reset",
+            "method": "POST"
+          },
+          {
+            "action": "write",
+            "endpoint": "/write",
+            "method": "POST",
+            "body": {
+              "value": 100
+            }
+          },
+          {
+            "action": "verify_consistency",
+            "endpoints": [
+              "/read/node1",
+              "/read/node2",
+              "/read/node3"
+            ],
+            "expected_value": 100
+          }
+        ]
+      },
+      {
+        "scenario": "Node Failure Recovery",
+        "steps": [
+          {
+            "action": "reset",
+            "endpoint": "/reset",
+            "method": "POST"
+          },
+          {
+            "action": "write",
+            "endpoint": "/write",
+            "method": "POST",
+            "body": {
+              "value": 200
+            }
+          },
+          {
+            "action": "disable_node",
+            "endpoint": "/node/node2/status",
+            "method": "POST"
+          },
+          {
+            "action": "write_with_failure",
+            "endpoint": "/write",
+            "method": "POST",
+            "body": {
+              "value": 300
+            }
+          },
+          {
+            "action": "enable_node",
+            "endpoint": "/node/node2/status",
+            "method": "POST"
+          },
+          {
+            "action": "verify",
+            "endpoint": "/health",
+            "method": "GET"
+          }
+        ]
+      }
+    ],
+    "load_tests": {
+      "sequential_writes": {
+        "description": "Write 10 values sequentially",
+        "requests": [
+          {"value": 100},
+          {"value": 200},
+          {"value": 300},
+          {"value": 400},
+          {"value": 500},
+          {"value": 600},
+          {"value": 700},
+          {"value": 800},
+          {"value": 900},
+          {"value": 1000}
+        ]
+      },
+      "rapid_reads": {
+        "description": "Read from all nodes rapidly",
+        "nodes": ["node1", "node2", "node3"],
+        "iterations": 10
+      }
+    }
+  },
+  "sample_values": {
+    "integers": [1, 10, 100, 1000, 10000, 99999],
+    "negative": [-1, -100, -1000],
+    "edge_cases": [0, 2147483647, -2147483648],
+    "random": [42, 256, 512, 1024, 2048, 4096]
+  },
+  "environment_configs": {
+    "development": {
+      "base_url": "http://localhost:5001",
+      "timeout": 5000,
+      "retry_attempts": 3
+    },
+    "production": {
+      "base_url": "https://your-production-url.com",
+      "timeout": 10000,
+      "retry_attempts": 5
+    }
+  }
+}

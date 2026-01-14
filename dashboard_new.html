@@ -360,31 +360,31 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌐 Distributed System Dashboard</h1>
-            <p style="color: #666; margin: 10px 0;">
-                Real-time monitoring of distributed consistency models
+            <h1>⚡ Distributed Cluster Monitor</h1>
+            <p style="color: #8b949e; margin: 8px 0; font-size: 0.95em;">
+                Real-time cluster synchronization and replication tracking
             </p>
-            <div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;">
-                <span style="font-weight: bold; color: #666;">Consistency Mode:</span>
+            <div style="display: flex; gap: 12px; align-items: center; margin-top: 15px;">
+                <span style="font-weight: 600; color: #8b949e;">Replication Mode:</span>
                 <span class="consistency-mode" id="consistencyMode">Loading...</span>
-                <button onclick="showModeSelector()" style="padding: 8px 20px;">Change Mode</button>
+                <button onclick="showModeSelector()" style="padding: 8px 18px; font-size: 0.9em;">Switch Mode</button>
             </div>
         </header>
 
         <div class="grid">
-            <!-- Write Operations -->
+            <!-- Data Storage Operations -->
             <div class="card">
-                <h2>✍️ Write Operations</h2>
+                <h2>💾 Data Storage</h2>
                 <div class="controls">
-                    <input type="number" id="writeValue" placeholder="Enter value to write" value="100">
-                    <button onclick="performWrite()">Write</button>
+                    <input type="number" id="writeValue" placeholder="Enter value" value="100">
+                    <button onclick="performStore()">Store Data</button>
                 </div>
-                <div id="writeResult"></div>
+                <div id="storeResult"></div>
             </div>
 
-            <!-- Read Operations -->
+            <!-- Data Retrieval Operations -->
             <div class="card">
-                <h2>📖 Read Operations</h2>
+                <h2>🔍 Data Retrieval</h2>
                 <div class="controls">
                     <div class="select-wrapper">
                         <select id="readNode">
@@ -393,79 +393,79 @@
                             <option value="node3">Node 3</option>
                         </select>
                     </div>
-                    <button onclick="performRead(false)">Read</button>
-                    <button onclick="performRead(true)" class="success">Quorum Read</button>
+                    <button onclick="performRetrieve(false)">Retrieve</button>
+                    <button onclick="performRetrieve(true)" class="success">Quorum Retrieve</button>
                 </div>
-                <div id="readResult"></div>
+                <div id="retrieveResult"></div>
             </div>
 
-            <!-- System Controls -->
+            <!-- System Management -->
             <div class="card">
-                <h2>⚙️ System Controls</h2>
+                <h2>🛠️ System Management</h2>
                 <div class="controls">
-                    <button onclick="resetSystem()" class="danger">Reset System</button>
-                    <button onclick="refreshAll()" class="success">Refresh All</button>
+                    <button onclick="restartSystem()" class="danger">Restart All</button>
+                    <button onclick="refreshAll()" class="success">Refresh Data</button>
                 </div>
                 <div class="health-indicator">
                     <div class="health-dot" id="healthDot"></div>
                     <div>
-                        <strong id="healthStatus">Checking...</strong><br>
-                        <small id="healthDetails"></small>
+                        <div style="font-weight: 600; color: #e6edf3; font-size: 0.95em;" id="healthStatus">Checking...</div>
+                        <div style="font-size: 0.85em; color: #8b949e; margin-top: 2px;" id="healthDetails">Loading status...</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Consistency Mode Selector Modal -->
-        <div id="modeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-            <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                <h2 style="color: #667eea; margin-bottom: 20px;">🔄 Change Consistency Mode</h2>
-                <p style="color: #666; margin-bottom: 20px;">Select the consistency model for write operations:</p>
+        <!-- Mode Selector Modal -->
+        <div id="modeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: #1a1f2e; padding: 35px; border-radius: 12px; max-width: 550px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid #30363d;">
+                <h2 style="color: #ff8c42; margin-bottom: 20px; font-size: 1.6em;">🔄 Change Replication Mode</h2>
+                <p style="color: #8b949e; margin-bottom: 25px; line-height: 1.6;">Select the consistency model for data synchronization:</p>
                 
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div class="mode-option" onclick="selectMode('strong')" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#ddd'">
-                        <strong style="color: #667eea; font-size: 1.1em;">⚡ STRONG Consistency</strong>
-                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Quorum-based writes (2/3 nodes). Highest consistency, higher latency.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="mode-option" onclick="selectMode('strong')" style="padding: 16px; border: 2px solid #30363d; border-radius: 10px; cursor: pointer; transition: all 0.3s; background: #0d1117;" onmouseover="this.style.borderColor='#ff8c42'; this.style.background='#1a1f2e'" onmouseout="this.style.borderColor='#30363d'; this.style.background='#0d1117'">
+                        <strong style="color: #3fb950; font-size: 1.1em;">STRONG</strong>
+                        <p style="color: #8b949e; margin-top: 6px; font-size: 0.9em;">Quorum-based writes, highest consistency</p>
                     </div>
                     
-                    <div class="mode-option" onclick="selectMode('eventual')" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#ddd'">
-                        <strong style="color: #667eea; font-size: 1.1em;">🔄 EVENTUAL Consistency</strong>
-                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Async replication with conflict detection. Balanced performance.</p>
+                    <div class="mode-option" onclick="selectMode('eventual')" style="padding: 16px; border: 2px solid #30363d; border-radius: 10px; cursor: pointer; transition: all 0.3s; background: #0d1117;" onmouseover="this.style.borderColor='#ff8c42'; this.style.background='#1a1f2e'" onmouseout="this.style.borderColor='#30363d'; this.style.background='#0d1117'">
+                        <strong style="color: #58a6ff; font-size: 1.1em;">EVENTUAL</strong>
+                        <p style="color: #8b949e; margin-top: 6px; font-size: 0.9em;">Async replication, balanced approach</p>
                     </div>
                     
-                    <div class="mode-option" onclick="selectMode('weak')" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#ddd'">
-                        <strong style="color: #667eea; font-size: 1.1em;">⚡ WEAK Consistency</strong>
-                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Primary node only. Fastest writes, eventual propagation.</p>
+                    <div class="mode-option" onclick="selectMode('weak')" style="padding: 16px; border: 2px solid #30363d; border-radius: 10px; cursor: pointer; transition: all 0.3s; background: #0d1117;" onmouseover="this.style.borderColor='#ff8c42'; this.style.background='#1a1f2e'" onmouseout="this.style.borderColor='#30363d'; this.style.background='#0d1117'">
+                        <strong style="color: #d29922; font-size: 1.1em;">WEAK</strong>
+                        <p style="color: #8b949e; margin-top: 6px; font-size: 0.9em;">Primary node only, fastest writes</p>
                     </div>
                 </div>
                 
-                <div style="margin-top: 20px; text-align: right;">
-                    <button onclick="closeModeSelector()" style="padding: 10px 20px; background: #ddd; color: #333;">Cancel</button>
+                <div style="margin-top: 25px; text-align: right;">
+                    <button onclick="closeModeSelector()" style="background: #30363d; padding: 10px 24px;">Cancel</button>
                 </div>
             </div>
         </div>
 
-        <!-- Nodes Status -->
+        <!-- Cluster Members Status -->
         <div class="card" style="margin-bottom: 20px;">
-            <h2>🖥️ Nodes Status</h2>
-            <div id="nodesContainer" class="loading">Loading nodes...</div>
+            <h2>🖥️ Cluster Members</h2>
+            <div id="nodesContainer" class="loading">Loading cluster members...</div>
         </div>
 
         <div class="grid">
-            <!-- Metrics -->
+            <!-- Analytics -->
             <div class="card">
-                <h2>📊 Metrics</h2>
+                <h2>📈 System Analytics</h2>
                 <div class="metrics-grid" id="metricsContainer">
-                    <div class="loading">Loading metrics...</div>
+                    <div class="loading">Loading analytics...</div>
                 </div>
             </div>
 
-            <!-- Activity Log -->
+            <!-- Activity Monitor -->
             <div class="card">
-                <h2>📝 Activity Log</h2>
+                <h2>📡 Activity Monitor</h2>
                 <div class="log-container" id="activityLog">
                     <div class="log-entry info">
-                        <span class="timestamp">[System]</span> Dashboard initialized
+                        <span class="timestamp">[--:--:--]</span> System initialized
                     </div>
                 </div>
             </div>
@@ -473,7 +473,7 @@
     </div>
 
     <script>
-        // Auto-detect API base URL (works for both localhost and deployed server)
+        // Auto-detect API base URL
         const API_BASE = window.location.origin;
         let autoRefresh = true;
 
@@ -492,90 +492,64 @@
             }
         }
 
-        // Fetch and update nodes
+        // Fetch and update cluster members
         async function updateNodes() {
             try {
-                const response = await fetch(`${API_BASE}/nodes`);
+                const response = await fetch(`${API_BASE}/api/cluster/members`);
                 const data = await response.json();
                 
                 const container = document.getElementById('nodesContainer');
                 container.innerHTML = '';
                 
                 for (const [name, info] of Object.entries(data.nodes)) {
-                    const nodeDiv = document.createElement('div');
-                    nodeDiv.className = `node ${info.status}`;
-                    nodeDiv.innerHTML = `
+                    const node = document.createElement('div');
+                    node.className = `node ${info.status}`;
+                    node.innerHTML = `
                         <div class="node-header">
                             <span class="node-name">${name.toUpperCase()}</span>
                             <span class="status-badge ${info.status}">${info.status}</span>
                         </div>
-                        <div class="value-display">Value: ${info.value}</div>
+                        <div class="value-display">${info.value}</div>
                         <div class="node-info">
-                            <div>Vector Clock: ${JSON.stringify(info.vector_clock)}</div>
-                            <div>Timestamp: ${new Date(info.timestamp).toLocaleString()}</div>
-                            <div>Last Heartbeat: ${info.last_heartbeat_sec_ago}s ago</div>
+                            Vector Clock: ${JSON.stringify(info.vector_clock)}<br>
+                            Timestamp: ${new Date(info.timestamp).toLocaleString()}<br>
+                            Last Update: ${info.last_heartbeat_sec_ago}s ago
                         </div>
-                        <button onclick="toggleNodeStatus('${name}')" style="margin-top: 10px; width: 100%;">
+                        <button onclick="toggleNodeStatus('${name}')" style="margin-top: 10px; width: 100%; padding: 8px;">
                             Toggle Status
                         </button>
                     `;
-                    container.appendChild(nodeDiv);
+                    container.appendChild(node);
                 }
             } catch (error) {
-                addLog(`Failed to fetch nodes: ${error.message}`, 'error');
+                addLog(`Failed to fetch cluster members: ${error.message}`, 'error');
             }
         }
 
-        // Fetch and update metrics
+        // Fetch and update analytics
         async function updateMetrics() {
             try {
-                const response = await fetch(`${API_BASE}/metrics`);
+                const response = await fetch(`${API_BASE}/api/analytics`);
                 const data = await response.json();
                 
                 const container = document.getElementById('metricsContainer');
                 container.innerHTML = `
-                    <div class="metric">
-                        <div class="metric-value">${data.total_writes}</div>
-                        <div class="metric-label">Total Writes</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.total_reads}</div>
-                        <div class="metric-label">Total Reads</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.conflicts_resolved}</div>
-                        <div class="metric-label">Conflicts Resolved</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.read_repairs}</div>
-                        <div class="metric-label">Read Repairs</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.avg_write_latency_ms}ms</div>
-                        <div class="metric-label">Avg Write Latency</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.avg_read_latency_ms}ms</div>
-                        <div class="metric-label">Avg Read Latency</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.success_rate.writes}%</div>
-                        <div class="metric-label">Write Success Rate</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value">${data.success_rate.reads}%</div>
-                        <div class="metric-label">Read Success Rate</div>
-                    </div>
+                    <div class="metric"><div class="metric-value">${data.total_writes}</div><div class="metric-label">Total Writes</div></div>
+                    <div class="metric"><div class="metric-value">${data.total_reads}</div><div class="metric-label">Total Reads</div></div>
+                    <div class="metric"><div class="metric-value">${data.failed_writes}</div><div class="metric-label">Failed Writes</div></div>
+                    <div class="metric"><div class="metric-value">${data.conflicts_resolved}</div><div class="metric-label">Conflicts</div></div>
+                    <div class="metric"><div class="metric-value">${data.avg_write_latency_ms}ms</div><div class="metric-label">Avg Write Latency</div></div>
+                    <div class="metric"><div class="metric-value">${data.success_rate.writes}%</div><div class="metric-label">Write Success</div></div>
                 `;
             } catch (error) {
-                addLog(`Failed to fetch metrics: ${error.message}`, 'error');
+                addLog(`Failed to fetch analytics: ${error.message}`, 'error');
             }
         }
 
         // Update health status
         async function updateHealth() {
             try {
-                const response = await fetch(`${API_BASE}/health`);
+                const response = await fetch(`${API_BASE}/api/system/status`);
                 const data = await response.json();
                 
                 const dot = document.getElementById('healthDot');
@@ -584,16 +558,16 @@
                 
                 dot.className = `health-dot ${data.status}`;
                 status.textContent = `System ${data.status.toUpperCase()}`;
-                details.textContent = `${data.healthy_nodes}/${data.total_nodes} nodes healthy | Quorum: ${data.quorum_met ? 'Met' : 'Not Met'}`;
+                details.textContent = `${data.healthy_nodes}/${data.total_nodes} members healthy | Quorum: ${data.quorum_met ? 'Met' : 'Not Met'}`;
             } catch (error) {
-                addLog(`Failed to fetch health: ${error.message}`, 'error');
+                addLog(`Failed to fetch system status: ${error.message}`, 'error');
             }
         }
 
         // Update consistency mode
         async function updateConsistencyMode() {
             try {
-                const response = await fetch(`${API_BASE}/config/consistency`);
+                const response = await fetch(`${API_BASE}/api/settings/mode`);
                 const data = await response.json();
                 const mode = data.consistency_mode.toUpperCase();
                 const modeEl = document.getElementById('consistencyMode');
@@ -601,14 +575,14 @@
                 
                 // Color code the mode
                 if (mode === 'STRONG') {
-                    modeEl.style.background = '#10b981';
+                    modeEl.style.background = 'linear-gradient(135deg, #3fb950 0%, #238636 100%)';
                 } else if (mode === 'EVENTUAL') {
-                    modeEl.style.background = '#667eea';
+                    modeEl.style.background = 'linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%)';
                 } else if (mode === 'WEAK') {
-                    modeEl.style.background = '#f59e0b';
+                    modeEl.style.background = 'linear-gradient(135deg, #d29922 0%, #bf8700 100%)';
                 }
             } catch (error) {
-                addLog(`Failed to fetch config: ${error.message}`, 'error');
+                addLog(`Failed to fetch settings: ${error.message}`, 'error');
             }
         }
 
@@ -625,7 +599,7 @@
         // Select and change consistency mode
         async function selectMode(mode) {
             try {
-                const response = await fetch(`${API_BASE}/config/consistency`, {
+                const response = await fetch(`${API_BASE}/api/settings/mode`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mode })
@@ -634,7 +608,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    addLog(`Consistency mode changed: ${data.previous_mode} → ${data.current_mode}`, 'success');
+                    addLog(`Replication mode changed to ${mode.toUpperCase()}`, 'success');
                     updateConsistencyMode();
                     closeModeSelector();
                 } else {
@@ -645,8 +619,8 @@
             }
         }
 
-        // Perform write
-        async function performWrite() {
+        // Perform data storage
+        async function performStore() {
             const value = parseInt(document.getElementById('writeValue').value);
             if (isNaN(value)) {
                 addLog('Please enter a valid number', 'error');
@@ -654,73 +628,72 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}/write`, {
+                const response = await fetch(`${API_BASE}/api/store`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ value })
                 });
                 
                 const data = await response.json();
-                const resultDiv = document.getElementById('writeResult');
+                const resultDiv = document.getElementById('storeResult');
                 
                 if (data.success) {
                     resultDiv.innerHTML = `
-                        <div class="log-entry success" style="margin-top: 10px;">
-                            ✅ Write successful!<br>
-                            Mode: ${data.mode}<br>
-                            Value: ${data.written_value}<br>
-                            Latency: ${data.latency_ms}ms
+                        <div style="padding: 15px; background: #0d1117; border-radius: 8px; margin-top: 10px; border-left: 3px solid #3fb950;">
+                            <strong style="color: #3fb950;">✓ Data Stored Successfully</strong><br>
+                            <span style="color: #8b949e; font-size: 0.9em;">Value: ${data.written_value} | Latency: ${data.latency_ms}ms</span>
                         </div>
                     `;
-                    addLog(`Write successful: ${value} (${data.latency_ms}ms)`, 'success');
+                    addLog(`Data stored: ${value} (${data.latency_ms}ms)`, 'success');
                 } else {
                     resultDiv.innerHTML = `
-                        <div class="log-entry error" style="margin-top: 10px;">
-                            ❌ Write failed: ${data.error}
+                        <div style="padding: 15px; background: #0d1117; border-radius: 8px; margin-top: 10px; border-left: 3px solid #f85149;">
+                            <strong style="color: #f85149;">✗ Storage Failed</strong><br>
+                            <span style="color: #8b949e; font-size: 0.9em;">${data.error}</span>
                         </div>
                     `;
-                    addLog(`Write failed: ${data.error}`, 'error');
+                    addLog(`Storage failed: ${data.error}`, 'error');
                 }
                 
                 // Refresh nodes after write
-                setTimeout(() => updateNodes(), 500);
-                setTimeout(() => updateMetrics(), 500);
+                setTimeout(() => {
+                    updateNodes();
+                    updateMetrics();
+                }, 500);
             } catch (error) {
-                addLog(`Write error: ${error.message}`, 'error');
+                addLog(`Storage error: ${error.message}`, 'error');
             }
         }
 
-        // Perform read
-        async function performRead(useQuorum) {
+        // Perform data retrieval
+        async function performRetrieve(useQuorum) {
             const node = document.getElementById('readNode').value;
             
             try {
-                const url = `${API_BASE}/read/${node}${useQuorum ? '?quorum=true' : ''}`;
+                const url = `${API_BASE}/api/retrieve/${node}${useQuorum ? '?quorum=true' : ''}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                const resultDiv = document.getElementById('readResult');
+                const resultDiv = document.getElementById('retrieveResult');
                 resultDiv.innerHTML = `
-                    <div class="log-entry success" style="margin-top: 10px;">
-                        📖 Read from ${data.node}<br>
-                        <strong style="font-size: 1.5em; color: #667eea;">Value: ${data.value}</strong><br>
-                        Type: ${data.read_type}<br>
-                        Latency: ${data.latency_ms}ms
-                        ${data.vector_clock ? `<br>Vector Clock: ${JSON.stringify(data.vector_clock)}` : ''}
+                    <div style="padding: 15px; background: #0d1117; border-radius: 8px; margin-top: 10px; border-left: 3px solid #58a6ff;">
+                        <strong style="color: #58a6ff;">Retrieved Data</strong><br>
+                        <div class="value-display" style="font-size: 1.8em;">${data.value}</div>
+                        <span style="color: #8b949e; font-size: 0.9em;">${data.read_type} | Latency: ${data.latency_ms}ms</span>
                     </div>
                 `;
-                addLog(`Read from ${node}: ${data.value} (${data.read_type}, ${data.latency_ms}ms)`, 'success');
+                addLog(`Retrieved from ${node}: ${data.value} (${data.read_type}, ${data.latency_ms}ms)`, 'success');
                 
                 setTimeout(() => updateMetrics(), 500);
             } catch (error) {
-                addLog(`Read error: ${error.message}`, 'error');
+                addLog(`Retrieval error: ${error.message}`, 'error');
             }
         }
 
         // Toggle node status
         async function toggleNodeStatus(node) {
             try {
-                const response = await fetch(`${API_BASE}/node/${node}/status`, {
+                const response = await fetch(`${API_BASE}/api/cluster/${node}/toggle`, {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -732,19 +705,19 @@
             }
         }
 
-        // Reset system
-        async function resetSystem() {
-            if (!confirm('Are you sure you want to reset all nodes and metrics?')) {
+        // Restart system
+        async function restartSystem() {
+            if (!confirm('Are you sure you want to restart all cluster members?')) {
                 return;
             }
             
             try {
-                const response = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+                const response = await fetch(`${API_BASE}/api/system/restart`, { method: 'POST' });
                 const data = await response.json();
-                addLog('System reset complete', 'success');
+                addLog('System restart complete', 'success');
                 refreshAll();
             } catch (error) {
-                addLog(`Reset failed: ${error.message}`, 'error');
+                addLog(`Restart failed: ${error.message}`, 'error');
             }
         }
 

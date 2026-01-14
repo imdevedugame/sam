@@ -19,10 +19,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Configuration
-CONSISTENCY_MODE = os.getenv("CONSISTENCY_MODE", "strong")
-REPLICATION_DELAY = int(os.getenv("REPLICATION_DELAY", "3"))
-QUORUM_SIZE = int(os.getenv("QUORUM_SIZE", "2"))
+# Configuration (runtime-changeable)
+class Config:
+    CONSISTENCY_MODE = os.getenv("CONSISTENCY_MODE", "eventual")
+    REPLICATION_DELAY = int(os.getenv("REPLICATION_DELAY", "3"))
+    QUORUM_SIZE = int(os.getenv("QUORUM_SIZE", "2"))
+
+config = Config()
+CONSISTENCY_MODE = config.CONSISTENCY_MODE
+REPLICATION_DELAY = config.REPLICATION_DELAY
+QUORUM_SIZE = config.QUORUM_SIZE
 SIMULATE_FAILURES = os.getenv("SIMULATE_FAILURES", "false").lower() == "true"
 FAILURE_RATE = float(os.getenv("FAILURE_RATE", "0.05"))  # 5% default
 
@@ -296,9 +302,9 @@ def quorum_read(node_name):
         return nodes[node_name]["value"]
 
 
-@app.route("/write", methods=["POST"])
-def write():
-    """Enhanced write endpoint with error handling and metrics"""
+@app.route("/api/store", methods=["POST"])
+def store_data():
+    """Enhanced data storage endpoint with error handling and metrics"""
     start_time = time.time()
     
     try:
@@ -314,10 +320,10 @@ def write():
         success = False
         error_msg = None
         
-        if CONSISTENCY_MODE == "strong":
+        if config.CONSISTENCY_MODE == "strong":
             success, error_msg = strong_write(value)
             mode = "STRONG CONSISTENCY (Quorum-based)"
-        elif CONSISTENCY_MODE == "weak":
+        elif config.CONSISTENCY_MODE == "weak":
             success, error_msg = weak_write(value)
             mode = "WEAK CONSISTENCY (Primary only)"
         else:
@@ -358,9 +364,9 @@ def write():
             metrics["failed_writes"] += 1
         return jsonify({"error": str(e)}), 500
 
-@app.route("/read/<node>", methods=["GET"])
-def read(node):
-    """Enhanced read endpoint with quorum read option"""
+@app.route("/api/retrieve/<node>", methods=["GET"])
+def retrieve_data(node):
+    """Enhanced data retrieval endpoint with quorum read option"""
     start_time = time.time()
     
     try:
@@ -410,36 +416,41 @@ def read(node):
 
 @app.route("/")
 def index():
+    """Redirect to monitor"""
+    return send_file('dashboard.html')
+
+@app.route("/api/info")
+def system_info():
     """Main info endpoint"""
     return jsonify({
-        "app": "Advanced Distributed Flask App",
-        "consistency_mode": CONSISTENCY_MODE,
+        "app": "Distributed Data Replication System",
+        "consistency_mode": config.CONSISTENCY_MODE,
         "config": {
-            "quorum_size": QUORUM_SIZE,
-            "replication_delay_sec": REPLICATION_DELAY,
+            "quorum_size": config.QUORUM_SIZE,
+            "replication_delay_sec": config.REPLICATION_DELAY,
             "simulate_failures": SIMULATE_FAILURES,
             "failure_rate": FAILURE_RATE if SIMULATE_FAILURES else 0
         },
         "endpoints": {
-            "dashboard": "GET /dashboard - Web dashboard",
-            "write": "POST /write - Write data (body: {value: <val>})",
-            "read": "GET /read/<node>?quorum=true - Read from node",
-            "health": "GET /health - Health check",
-            "metrics": "GET /metrics - System metrics",
-            "nodes": "GET /nodes - All node states",
-            "reset": "POST /reset - Reset all nodes",
-            "node_status": "POST /node/<node>/status - Toggle node status"
+            "monitor": "GET /monitor - Web monitoring dashboard",
+            "store": "POST /api/store - Store data (body: {value: <val>})",
+            "retrieve": "GET /api/retrieve/<node>?quorum=true - Retrieve from node",
+            "status": "GET /api/system/status - System health status",
+            "stats": "GET /api/analytics - System analytics",
+            "cluster": "GET /api/cluster/members - All cluster members",
+            "restart": "POST /api/system/restart - Restart all nodes",
+            "toggle": "POST /api/cluster/<node>/toggle - Toggle node status"
         }
     })
 
-@app.route("/dashboard")
-def dashboard():
-    """Serve the web dashboard"""
+@app.route("/monitor")
+def monitor():
+    """Serve the web monitoring dashboard"""
     return send_file('dashboard.html')
 
-@app.route("/health", methods=["GET"])
-def health():
-    """Health check endpoint"""
+@app.route("/api/system/status", methods=["GET"])
+def system_status():
+    """System health status endpoint"""
     with node_lock:
         healthy_count = sum(1 for n in nodes.values() if n["status"] == "healthy")
         node_health = {
@@ -461,9 +472,9 @@ def health():
         "nodes": node_health
     })
 
-@app.route("/metrics", methods=["GET"])
-def get_metrics():
-    """Get system metrics"""
+@app.route("/api/analytics", methods=["GET"])
+def get_analytics():
+    """Get system analytics and metrics"""
     with metrics_lock:
         avg_write_latency = sum(metrics["write_latencies"]) / len(metrics["write_latencies"]) if metrics["write_latencies"] else 0
         avg_read_latency = sum(metrics["read_latencies"]) / len(metrics["read_latencies"]) if metrics["read_latencies"] else 0
@@ -485,9 +496,9 @@ def get_metrics():
     
     return jsonify(metrics_snapshot)
 
-@app.route("/nodes", methods=["GET"])
-def get_nodes():
-    """Get all node states"""
+@app.route("/api/cluster/members", methods=["GET"])
+def get_cluster_members():
+    """Get all cluster member states"""
     with node_lock:
         nodes_info = {
             name: {
@@ -502,9 +513,9 @@ def get_nodes():
     
     return jsonify({"nodes": nodes_info})
 
-@app.route("/reset", methods=["POST"])
-def reset():
-    """Reset all nodes to initial state"""
+@app.route("/api/system/restart", methods=["POST"])
+def restart_system():
+    """Restart all nodes to initial state"""
     with node_lock:
         for name in nodes:
             nodes[name]["value"] = 0
@@ -526,9 +537,9 @@ def reset():
     logger.info("System reset completed")
     return jsonify({"message": "All nodes and metrics reset"})
 
-@app.route("/node/<node>/status", methods=["POST"])
-def toggle_node_status(node):
-    """Toggle node status between healthy and unhealthy"""
+@app.route("/api/cluster/<node>/toggle", methods=["POST"])
+def toggle_member_status(node):
+    """Toggle cluster member status between healthy and unhealthy"""
     if node not in nodes:
         return jsonify({"error": f"Node '{node}' not found"}), 404
     
@@ -545,6 +556,37 @@ def toggle_node_status(node):
         "previous_status": current_status,
         "new_status": new_status
     })
+
+@app.route("/api/settings/mode", methods=["GET", "POST"])
+def consistency_settings():
+    """Get or set consistency mode settings"""
+    if request.method == "POST":
+        data = request.json
+        mode = data.get("mode", "").lower()
+        
+        if mode not in ["strong", "weak", "eventual"]:
+            return jsonify({"error": "Invalid mode. Use: strong, weak, or eventual"}), 400
+        
+        old_mode = config.CONSISTENCY_MODE
+        config.CONSISTENCY_MODE = mode
+        
+        logger.info(f"Consistency mode changed: {old_mode} -> {mode}")
+        
+        return jsonify({
+            "success": True,
+            "previous_mode": old_mode,
+            "current_mode": config.CONSISTENCY_MODE,
+            "message": f"Consistency mode changed to {mode.upper()}"
+        })
+    else:
+        return jsonify({
+            "consistency_mode": config.CONSISTENCY_MODE,
+            "available_modes": ["strong", "weak", "eventual"],
+            "config": {
+                "quorum_size": config.QUORUM_SIZE,
+                "replication_delay_sec": config.REPLICATION_DELAY
+            }
+        })
 
 
 if __name__ == "__main__":
